@@ -2,21 +2,16 @@ import swisseph as swe
 
 class ThaiAstrologyEngine:
     def __init__(self):
-        # 1. ธาตุประจำดาว
         self.planet_elements = {
             "อาทิตย์ (๑)": "ไฟ", "จันทร์ (๒)": "ดิน", "อังคาร (๓)": "ลม",
             "พุธ (๔)": "น้ำ", "พฤหัสบดี (๕)": "ดิน", "ศุกร์ (๖)": "น้ำ",
             "เสาร์ (๗)": "ไฟ", "ราหู (๘)": "ลม", "มฤตยู (๐)": "อากาศธาตุ"
         }
-        
-        # 2. ประเภทดาว (ศุภเคราะห์/บาปเคราะห์)
         self.planet_types = {
             "อาทิตย์ (๑)": "บาปเคราะห์", "จันทร์ (๒)": "ศุภเคราะห์", "อังคาร (๓)": "บาปเคราะห์",
             "พุธ (๔)": "ศุภเคราะห์", "พฤหัสบดี (๕)": "ศุภเคราะห์", "ศุกร์ (๖)": "ศุภเคราะห์",
             "เสาร์ (๗)": "บาปเคราะห์", "ราหู (๘)": "บาปเคราะห์", "มฤตยู (๐)": "บาปเคราะห์"
         }
-        
-        # 3. มาตรฐานดาว (เกษตร, อุจจ์, นิจ, ประ) ตามราศี
         self.dignities = {
             "อาทิตย์ (๑)": {"เกษตร": ["สิงห์"], "อุจจ์": ["เมษ"], "นิจ": ["ตุลย์"], "ประ": ["กุมภ์"]},
             "จันทร์ (๒)": {"เกษตร": ["กรกฎ"], "อุจจ์": ["พฤษภ"], "นิจ": ["พิจิก"], "ประ": ["มังกร"]},
@@ -26,9 +21,8 @@ class ThaiAstrologyEngine:
             "ศุกร์ (๖)": {"เกษตร": ["พฤษภ", "ตุลย์"], "อุจจ์": ["มีน"], "นิจ": ["กันย์"], "ประ": ["เมษ", "พิจิก"]},
             "เสาร์ (๗)": {"เกษตร": ["มังกร"], "อุจจ์": ["ตุลย์"], "นิจ": ["เมษ"], "ประ": ["กรกฎ"]},
             "ราหู (๘)": {"เกษตร": ["กุมภ์"], "อุจจ์": ["พิจิก"], "นิจ": ["พฤษภ"], "ประ": ["สิงห์"]},
-            "มฤตยู (๐)": {"เกษตร": [], "อุจจ์": [], "นิจ": [], "ประ": []} # มฤตยูมักไม่นับมาตรฐานแบบดาวปกติ
+            "มฤตยู (๐)": {"เกษตร": [], "อุจจ์": [], "นิจ": [], "ประ": []}
         }
-        
         self.zodiac_signs = ["เมษ", "พฤษภ", "มิถุน", "กรกฎ", "สิงห์", "กันย์", "ตุลย์", "พิจิก", "ธนู", "มังกร", "กุมภ์", "มีน"]
         self.house_names = ["ตนุ", "กดุมภะ", "สหัชชะ", "พันธุ", "ปุตตะ", "อริ", "ปัตนิ", "มรณะ", "ศุภะ", "กัมมะ", "ลาภะ", "วินาศ"]
 
@@ -39,7 +33,6 @@ class ThaiAstrologyEngine:
 
         jd = swe.julday(dt.year, dt.month, dt.day, dt.hour + dt.minute/60.0)
 
-        # คำนวณลัคนา
         cusps, ascmc = swe.houses_ex(jd, lat, lon, b'W', flags)
         ascendant_degree = ascmc[0]
         lagna_sign_index = int(ascendant_degree / 30)
@@ -59,7 +52,6 @@ class ThaiAstrologyEngine:
             "planets": {}
         }
 
-        # คำนวณดาว ภพ และ มาตรฐานดาว
         for name, planet_id in planets_to_calculate.items():
             res = swe.calc_ut(jd, planet_id, flags)
             longitude = res[0][0]
@@ -69,13 +61,11 @@ class ThaiAstrologyEngine:
             sign_name = self.zodiac_signs[sign_index]
             house_index = (sign_index - use_lagna_index) % 12
             
-            # --- ระบบประมวลผลมาตรฐานดาว ---
             found_dignities = []
             for dig, signs in self.dignities.get(name, {}).items():
                 if sign_name in signs:
                     found_dignities.append(dig)
             dignity_str = "/".join(found_dignities) if found_dignities else "มาตรฐานปกติ"
-            # -------------------------------
             
             results["planets"][name] = {
                 "longitude": longitude,
@@ -83,7 +73,7 @@ class ThaiAstrologyEngine:
                 "house": self.house_names[house_index],
                 "element": self.planet_elements.get(name, "ไม่ระบุ"),
                 "type": self.planet_types.get(name, "ไม่ระบุ"),
-                "dignity": dignity_str, # เพิ่มค่าส่งออกตรงนี้
+                "dignity": dignity_str,
                 "is_walking_slowly": speed < 0 or (speed < (0.5 * self._get_avg_speed(planet_id)))
             }
         return results
