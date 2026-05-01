@@ -6,6 +6,56 @@ from BaziAnalyzer import BaziAnalyzer
 from ThaiAstrologyEngine import ThaiAstrologyEngine
 from HybridSynthesisEngine import HybridSynthesisEngine
 
+def render_thai_astrology_chart(thai_data, title="ดวงชะตา"):
+    """สร้างตารางดวงอีแปะ 12 ราศี (ตารางสี่เหลี่ยมแบบไทย)"""
+    planet_symbols = {
+        "อาทิตย์ (๑)": "๑", "จันทร์ (๒)": "๒", "อังคาร (๓)": "๓",
+        "พุธ (๔)": "๔", "พฤหัสบดี (๕)": "๕", "ศุกร์ (๖)": "๖",
+        "เสาร์ (๗)": "๗", "ราหู (๘)": "๘", "มฤตยู (๐)": "๐"
+    }
+    zodiac_names = ["เมษ", "พฤษภ", "มิถุน", "กรกฎ", "สิงห์", "กันย์", "ตุลย์", "พิจิก", "ธนู", "มังกร", "กุมภ์", "มีน"]
+    
+    boxes = {i: [] for i in range(12)}
+    boxes[thai_data['lagna_index']].append("<span style='color:red; font-weight:bold;'>ล</span>")
+    
+    for p_name, p_data in thai_data['planets'].items():
+        sign_index = zodiac_names.index(p_data['sign'])
+        if "เกษตร" in p_data['dignity'] or "อุจจ์" in p_data['dignity']:
+            sym = f"<span style='color:green; font-weight:bold;'>{planet_symbols[p_name]}</span>"
+        elif "นิจ" in p_data['dignity'] or "ประ" in p_data['dignity']:
+            sym = f"<span style='color:orange;'>{planet_symbols[p_name]}</span>"
+        else:
+            sym = f"<span style='color:black;'>{planet_symbols[p_name]}</span>"
+        boxes[sign_index].append(sym)
+
+    grid_layout = [
+        [11, 0, 1, 2],
+        [10, -1, -1, 3],
+        [9, -1, -1, 4],
+        [8, 7, 6, 5]
+    ]
+
+    html = f"<div style='text-align:center; margin-bottom: 20px;'><h4>{title}</h4>"
+    html += "<table style='border-collapse: collapse; margin: 0 auto; background-color: white;'>"
+    
+    for row in grid_layout:
+        html += "<tr>"
+        for sign_idx in row:
+            if sign_idx == -1:
+                html += "<td style='border: none; width: 60px; height: 60px;'></td>"
+            else:
+                stars = " ".join(boxes[sign_idx])
+                sign_name = zodiac_names[sign_idx]
+                html += f"""
+                <td style='border: 1px solid #ccc; width: 60px; height: 60px; text-align: center; vertical-align: top; padding: 5px; position: relative;'>
+                    <div style='font-size: 14px;'>{stars}</div>
+                    <div style='position: absolute; bottom: 2px; right: 2px; font-size: 8px; color: #aaa;'>{sign_name}</div>
+                </td>
+                """
+        html += "</tr>"
+    html += "</table></div>"
+    return html
+
 st.set_page_config(page_title="BenjaTara - เบญจทารา", page_icon="🔮", layout="wide", initial_sidebar_state="expanded")
 
 st.markdown("""
@@ -25,11 +75,9 @@ with st.sidebar:
     with st.form("user_data_form"):
         name = st.text_input("ชื่อ-นามสกุล", "คุณผู้ใช้งาน")
         
-        # --- แก้ไขปฏิทินให้ครอบคลุมถึงปีปัจจุบัน ---
         min_date = datetime(1900, 1, 1)
         max_date = datetime.now() 
         birth_date = st.date_input("วันเกิด (ค.ศ.)", value=datetime(1990, 1, 1), min_value=min_date, max_value=max_date)
-        # -------------------------------------
         
         birth_time = st.time_input("เวลาเกิด", value=datetime.strptime("12:00", "%H:%M").time())
         st.write("---")
@@ -45,20 +93,16 @@ if submit_btn:
             thai = ThaiAstrologyEngine()
             hybrid = HybridSynthesisEngine()
             
-            # 1. วิเคราะห์ปาจือ
             bazi_chart = bazi.get_bazi_chart(birth_date.year, birth_date.month, birth_date.day, birth_time.hour, birth_time.minute)
             day_master, scores = bazi.calculate_strength(bazi_chart)
             bazi_result = bazi.find_useful_god(day_master, scores)
             
-            # 2. ผูกดวงกำเนิดโหราศาสตร์ไทย (หาลัคนา)
             birth_dt = datetime.combine(birth_date, birth_time)
             thai_natal = thai.calculate_positions(birth_dt, lat, lon)
             
-            # 3. วิเคราะห์ดวงจร (Transit) โดยเทียบกับลัคนาเกิด
             now = datetime.now()
             thai_transit = thai.calculate_positions(now, lat, lon, ref_lagna_index=thai_natal['lagna_index'])
             
-            # 4. สังเคราะห์คำทำนาย
             report = hybrid.verify_and_predict(bazi_result, thai_transit)
             
             st.header(f"📊 ผลการวิเคราะห์ดวงชะตา: คุณ{name}")
@@ -77,7 +121,6 @@ if submit_btn:
                 c1, c2, c3 = st.columns(3)
                 c1.metric("ดิถี (ธาตุ)", day_master)
                 c2.metric("สถานะดิถี", bazi_result['chart_type'])
-                # แสดงผลลัคนาไทยที่เพิ่งคำนวณได้
                 c3.metric("ลัคนาราศี (ไทย)", report['lagna'])
                 
                 st.markdown(f"""
@@ -86,8 +129,35 @@ if submit_btn:
                     <p style="font-size: 1.2rem; color: #2E7D32;"><b>{', '.join(bazi_result['useful_gods'])}</b></p>
                 </div>
                 """, unsafe_allow_html=True)
-                
                 st.metric("คะแนนความราบรื่นปัจจุบัน", f"{report['score']}%")
+
+            st.markdown("---")
+            st.markdown("#### 🀄 โครงสร้าง 4 เสาชะตา (Bazi Chart)")
+            cols = st.columns(4)
+            pillars_name = ["เวลา (Hour)", "วัน (Day)", "เดือน (Month)", "ปี (Year)"]
+            keys = [("hour_stem", "hour_branch"), ("day_stem", "day_branch"), ("month_stem", "month_branch"), ("year_stem", "year_branch")]
+            
+            for i, col in enumerate(cols):
+                with col:
+                    st.markdown(f"""
+                    <div style='text-align:center; background-color:#f0f2f6; padding:15px; border-radius:10px; margin-bottom:10px;'>
+                        <p style='margin:0; font-size:14px; color:#555;'><b>{pillars_name[i]}</b></p>
+                        <hr style='margin:10px 0;'>
+                        <p style='margin:0; font-size:12px; color:#888;'>{bazi_result['ten_gods'][keys[i][0]]}</p>
+                        <h2 style='margin:5px 0; color:#1f77b4;'>{bazi_result['four_pillars'][keys[i][0]]}</h2>
+                        <h2 style='margin:5px 0; color:#d62728;'>{bazi_result['four_pillars'][keys[i][1]]}</h2>
+                        <p style='margin:0; font-size:12px; color:#888;'>{bazi_result['ten_gods'][keys[i][1]]}</p>
+                    </div>
+                    """, unsafe_allow_html=True)
+
+            st.markdown("---")
+            col_thai1, col_thai2 = st.columns(2)
+            with col_thai1:
+                thai_natal_html = render_thai_astrology_chart(thai_natal, "ดวงกำเนิด (ราศีจักร)")
+                st.markdown(thai_natal_html, unsafe_allow_html=True)
+            with col_thai2:
+                thai_transit_html = render_thai_astrology_chart(thai_transit, "ดวงจร (ปัจจุบัน)")
+                st.markdown(thai_transit_html, unsafe_allow_html=True)
 
             st.markdown("---")
             st.header("🔮 คำทำนายและการพยากรณ์สถานการณ์ปัจจุบัน")
@@ -116,4 +186,4 @@ if submit_btn:
             st.error(f"❌ เกิดข้อผิดพลาด: {e}")
 
 st.markdown("---")
-st.caption("© 2026 BenjaTara Project - ผสานปฏิทินโหราศาสตร์และ 12 ภพ")
+st.caption("© 2026 BenjaTara Project - ผสานปฏิทินโหราศาสตร์และ 12 ภพขั้นสูง")
