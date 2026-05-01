@@ -2,101 +2,117 @@ from lunar_python import Solar
 
 class BaziAnalyzer:
     def __init__(self):
-        self.stem_elements = {
-            "กะ": "ไม้", "อิก": "ไม้", "เปิ่ง": "ไฟ", "เต็ง": "ไฟ", "บู๊": "ดิน", "กี๋": "ดิน",
-            "แก": "ทอง", "ซิง": "ทอง", "ยิ้ม": "น้ำ", "กุ่ย": "น้ำ"
+        # ข้อมูลราศีบน (Heavenly Stems) พร้อมธาตุและขั้ว (+/-)
+        self.stems = {
+            "甲": {"element": "ไม้", "polarity": "+"}, "乙": {"element": "ไม้", "polarity": "-"},
+            "丙": {"element": "ไฟ", "polarity": "+"}, "丁": {"element": "ไฟ", "polarity": "-"},
+            "戊": {"element": "ดิน", "polarity": "+"}, "己": {"element": "ดิน", "polarity": "-"},
+            "庚": {"element": "ทอง", "polarity": "+"}, "辛": {"element": "ทอง", "polarity": "-"},
+            "壬": {"element": "น้ำ", "polarity": "+"}, "癸": {"element": "น้ำ", "polarity": "-"}
         }
-        self.branch_elements = {
-            "ขาล": "ไม้", "เถาะ": "ไม้", "มะเส็ง": "ไฟ", "มะเมีย": "ไฟ",
-            "มะโรง": "ดิน", "มะแม": "ดิน", "จอ": "ดิน", "ฉลู": "ดิน",
-            "วอก": "ทอง", "ระกา": "ทอง", "กุน": "น้ำ", "ชวด": "น้ำ"
-        }
-        self.cycle = {
-            "ไม้": {"produces": "ไฟ", "produced_by": "น้ำ", "controlled_by": "ทอง", "controls": "ดิน"},
-            "ไฟ": {"produces": "ดิน", "produced_by": "ไม้", "controlled_by": "น้ำ", "controls": "ทอง"},
-            "ดิน": {"produces": "ทอง", "produced_by": "ไฟ", "controlled_by": "ไม้", "controls": "น้ำ"},
-            "ทอง": {"produces": "น้ำ", "produced_by": "ดิน", "controlled_by": "ไฟ", "controls": "ไม้"},
-            "น้ำ": {"produces": "ไม้", "produced_by": "ทอง", "controlled_by": "ดิน", "controls": "ไฟ"}
+        # ข้อมูลราศีล่าง (Earthly Branches - นักษัตร)
+        self.branches = {
+            "子": {"element": "น้ำ", "polarity": "-"}, "丑": {"element": "ดิน", "polarity": "-"},
+            "寅": {"element": "ไม้", "polarity": "+"}, "卯": {"element": "ไม้", "polarity": "-"},
+            "辰": {"element": "ดิน", "polarity": "+"}, "巳": {"element": "ไฟ", "polarity": "+"},
+            "午": {"element": "ไฟ", "polarity": "-"}, "未": {"element": "ดิน", "polarity": "-"},
+            "申": {"element": "ทอง", "polarity": "+"}, "酉": {"element": "ทอง", "polarity": "-"},
+            "戌": {"element": "ดิน", "polarity": "+"}, "亥": {"element": "น้ำ", "polarity": "+"}
         }
         
-        # Mapping อักษรจีน -> ไทย
-        self.cn_to_th_stem = {
-            "甲": "กะ", "乙": "อิก", "丙": "เปิ่ง", "丁": "เต็ง",
-            "戊": "บู๊", "己": "กี๋", "庚": "แก", "辛": "ซิง",
-            "壬": "ยิ้ม", "癸": "กุ่ย"
-        }
-        self.cn_to_th_branch = {
-            "子": "ชวด", "丑": "ฉลู", "寅": "ขาล", "卯": "เถาะ",
-            "辰": "มะโรง", "巳": "มะเส็ง", "午": "มะเมีย", "未": "มะแม",
-            "申": "วอก", "酉": "ระกา", "戌": "จอ", "亥": "กุน"
-        }
+        # วงจร 5 ธาตุ (ก่อกำเนิด และ พิฆาตทำลาย)
+        self.generate = {"ไม้": "ไฟ", "ไฟ": "ดิน", "ดิน": "ทอง", "ทอง": "น้ำ", "น้ำ": "ไม้"}
+        self.control = {"ไม้": "ดิน", "ดิน": "น้ำ", "น้ำ": "ไฟ", "ไฟ": "ทอง", "ทอง": "ไม้"}
+
+    def _get_ten_god(self, dm_element, dm_polarity, target_element, target_polarity):
+        """คำนวณระบบ 10 เทพ (Ten Gods / 十神)"""
+        if target_element == dm_element:
+            return "ปี่เกียง (เพื่อน)" if dm_polarity == target_polarity else "เกียบไช้ (คู่แข่ง)"
+        elif self.generate[dm_element] == target_element:
+            return "เจียะซิ้ง (ผลงาน)" if dm_polarity == target_polarity else "ซังกัว (แสดงออก)"
+        elif self.control[dm_element] == target_element:
+            return "เพี้ยงไช้ (ลาภลอย)" if dm_polarity == target_polarity else "เจี้ยไช้ (การเงิน)"
+        elif self.control[target_element] == dm_element:
+            return "ชิกสัวะ (อำนาจ)" if dm_polarity == target_polarity else "เจี้ยกัว (ตำแหน่ง)"
+        elif self.generate[target_element] == dm_element:
+            return "เพี้ยงอิ่ง (อุปถัมภ์รอง)" if dm_polarity == target_polarity else "เจี้ยอิ่ง (อุปถัมภ์หลัก)"
+        return "ไม่ทราบ"
 
     def get_bazi_chart(self, year, month, day, hour, minute):
-        """แปลงวันเกิดสากลเป็น 4 เสา (กะจื้อ)"""
+        """ผูกดวง 4 เสาชะตา (8 ตัวอักษร)"""
         solar = Solar.fromYmdHms(year, month, day, hour, minute, 0)
         lunar = solar.getLunar()
-        baZi = lunar.getEightChar()
-
+        bazi = lunar.getEightChar()
+        
         chart = {
-            "year": {
-                "stem": self.cn_to_th_stem.get(baZi.getYearGan(), ""),
-                "branch": self.cn_to_th_branch.get(baZi.getYearZhi(), "")
-            },
-            "month": {
-                "stem": self.cn_to_th_stem.get(baZi.getMonthGan(), ""),
-                "branch": self.cn_to_th_branch.get(baZi.getMonthZhi(), "")
-            },
-            "day": {
-                "stem": self.cn_to_th_stem.get(baZi.getDayGan(), ""),
-                "branch": self.cn_to_th_branch.get(baZi.getDayZhi(), "")
-            },
-            "hour": {
-                "stem": self.cn_to_th_stem.get(baZi.getTimeGan(), ""),
-                "branch": self.cn_to_th_branch.get(baZi.getTimeZhi(), "")
-            }
+            "year_stem": bazi.getYearGan(), "year_branch": bazi.getYearZhi(),
+            "month_stem": bazi.getMonthGan(), "month_branch": bazi.getMonthZhi(),
+            "day_stem": bazi.getDayGan(), "day_branch": bazi.getDayZhi(),
+            "hour_stem": bazi.getTimeGan(), "hour_branch": bazi.getTimeZhi()
         }
         return chart
 
-    def calculate_strength(self, bazi_chart):
-        day_master_stem = bazi_chart["day"]["stem"]
-        day_master_element = self.stem_elements[day_master_stem]
-
+    def calculate_strength(self, chart):
         scores = {"ไม้": 0, "ไฟ": 0, "ดิน": 0, "ทอง": 0, "น้ำ": 0}
+        
+        dm_char = chart["day_stem"]
+        day_master_element = self.stems[dm_char]["element"]
+        dm_polarity = self.stems[dm_char]["polarity"]
+
+        # น้ำหนักของแต่ละเสา (เดือนเกิดมีผลต่ออุณหภูมิดวงมากที่สุด)
         weights = {
             "year_stem": 10, "year_branch": 10,
-            "month_stem": 12, "month_branch": 35, 
+            "month_stem": 15, "month_branch": 30,
             "day_stem": 0, "day_branch": 15,
-            "hour_stem": 10, "hour_branch": 8
+            "hour_stem": 10, "hour_branch": 10
         }
+        
+        # คำนวณคะแนนธาตุ
+        scores[self.stems[chart["year_stem"]]["element"]] += weights["year_stem"]
+        scores[self.branches[chart["year_branch"]]["element"]] += weights["year_branch"]
+        scores[self.stems[chart["month_stem"]]["element"]] += weights["month_stem"]
+        scores[self.branches[chart["month_branch"]]["element"]] += weights["month_branch"]
+        scores[self.branches[chart["day_branch"]]["element"]] += weights["day_branch"]
+        scores[self.stems[chart["hour_stem"]]["element"]] += weights["hour_stem"]
+        scores[self.branches[chart["hour_branch"]]["element"]] += weights["hour_branch"]
 
-        for pillar, data in bazi_chart.items():
-            if pillar != "day" or data["stem"] != day_master_stem:
-                stem_el = self.stem_elements.get(data["stem"])
-                if stem_el: scores[stem_el] += weights[f"{pillar}_stem"]
-            
-            branch_el = self.branch_elements.get(data["branch"])
-            if branch_el: scores[branch_el] += weights[f"{pillar}_branch"]
+        # ประมวลผล 10 เทพ ประจำแต่ละเสา
+        ten_gods = {}
+        for pos, char in chart.items():
+            if pos == "day_stem":
+                ten_gods[pos] = "ดิถี (ตัวตน)"
+                continue
+            is_stem = "stem" in pos
+            source = self.stems if is_stem else self.branches
+            t_elem = source[char]["element"]
+            t_pol = source[char]["polarity"]
+            ten_gods[pos] = self._get_ten_god(day_master_element, dm_polarity, t_elem, t_pol)
+
+        self.current_chart = chart
+        self.ten_gods = ten_gods
 
         return day_master_element, scores
 
-    def find_useful_god(self, day_master_element, scores):
-        support_element = self.cycle[day_master_element]["produced_by"]
-        support_score = scores[day_master_element] + scores[support_element]
-        weaken_score = sum(v for k, v in scores.items() if k not in [day_master_element, support_element])
-
-        is_strong = support_score > weaken_score
+    def find_useful_god(self, day_master, scores):
+        same = scores[day_master]
+        resource = scores[next(k for k, v in self.generate.items() if v == day_master)]
+        self_strength = same + resource
+        
+        chart_type = "ดิถีแข็งแรง" if self_strength > 45 else "ดิถีอ่อนแอ"
         
         useful_gods = []
-        if is_strong:
-            chart_type = "ดิถีแข็งแรง"
-            useful_gods.extend([self.cycle[day_master_element]["produces"], self.cycle[day_master_element]["controls"]])
+        if chart_type == "ดิถีแข็งแรง":
+            useful_gods.append(self.generate[day_master]) # ถ่ายเท
+            useful_gods.append(self.control[day_master])  # โชคลาภ
         else:
-            chart_type = "ดิถีอ่อนแอ"
-            useful_gods.extend([support_element, day_master_element])
-
+            useful_gods.append(day_master) # ช่วยเหลือ
+            useful_gods.append(next(k for k, v in self.generate.items() if v == day_master)) # อุปถัมภ์
+            
         return {
-            "day_master": day_master_element,
+            "day_master": day_master,
+            "scores": scores,
             "chart_type": chart_type,
             "useful_gods": useful_gods,
-            "scores": scores # ส่งคะแนนกลับไปเผื่อใช้แสดงผล
+            "four_pillars": self.current_chart, 
+            "ten_gods": self.ten_gods 
         }
