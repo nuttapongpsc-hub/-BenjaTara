@@ -46,12 +46,14 @@ def render_thai_astrology_chart(thai_data, title="ดวงชะตา"):
             else:
                 stars = " ".join(boxes[sign_idx])
                 sign_name = zodiac_names[sign_idx]
-                html += f"""
-                <td style='border: 1px solid #ccc; width: 60px; height: 60px; text-align: center; vertical-align: top; padding: 5px; position: relative;'>
-                    <div style='font-size: 14px;'>{stars}</div>
-                    <div style='position: absolute; bottom: 2px; right: 2px; font-size: 8px; color: #aaa;'>{sign_name}</div>
-                </td>
-                """
+                
+                # --- แก้ไขตรงนี้: ลบการเคาะวรรค (Indent) ออก และเขียนรวบให้ Markdown ไม่งง ---
+                html += f"<td style='border: 1px solid #ccc; width: 60px; height: 60px; text-align: center; vertical-align: top; padding: 5px; position: relative;'>"
+                html += f"<div style='font-size: 14px;'>{stars}</div>"
+                html += f"<div style='position: absolute; bottom: 2px; right: 2px; font-size: 8px; color: #aaa;'>{sign_name}</div>"
+                html += f"</td>"
+                # -----------------------------------------------------------------
+                
         html += "</tr>"
     html += "</table></div>"
     return html
