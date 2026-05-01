@@ -47,12 +47,11 @@ def render_thai_astrology_chart(thai_data, title="ดวงชะตา"):
                 stars = " ".join(boxes[sign_idx])
                 sign_name = zodiac_names[sign_idx]
                 
-                # --- แก้ไขตรงนี้: ลบการเคาะวรรค (Indent) ออก และเขียนรวบให้ Markdown ไม่งง ---
+                # เขียน HTML แบบต่อสตริงเพื่อป้องกัน Streamlit มองเป็น Code Block
                 html += f"<td style='border: 1px solid #ccc; width: 60px; height: 60px; text-align: center; vertical-align: top; padding: 5px; position: relative;'>"
                 html += f"<div style='font-size: 14px;'>{stars}</div>"
                 html += f"<div style='position: absolute; bottom: 2px; right: 2px; font-size: 8px; color: #aaa;'>{sign_name}</div>"
                 html += f"</td>"
-                # -----------------------------------------------------------------
                 
         html += "</tr>"
     html += "</table></div>"
@@ -141,16 +140,18 @@ if submit_btn:
             
             for i, col in enumerate(cols):
                 with col:
-                    st.markdown(f"""
-                    <div style='text-align:center; background-color:#f0f2f6; padding:15px; border-radius:10px; margin-bottom:10px;'>
-                        <p style='margin:0; font-size:14px; color:#555;'><b>{pillars_name[i]}</b></p>
-                        <hr style='margin:10px 0;'>
-                        <p style='margin:0; font-size:12px; color:#888;'>{bazi_result['ten_gods'][keys[i][0]]}</p>
-                        <h2 style='margin:5px 0; color:#1f77b4;'>{bazi_result['four_pillars'][keys[i][0]]}</h2>
-                        <h2 style='margin:5px 0; color:#d62728;'>{bazi_result['four_pillars'][keys[i][1]]}</h2>
-                        <p style='margin:0; font-size:12px; color:#888;'>{bazi_result['ten_gods'][keys[i][1]]}</p>
-                    </div>
-                    """, unsafe_allow_html=True)
+                    # แก้ไขการต่อสตริง HTML ของ Bazi Chart ให้ปลอดภัยจากบั๊ก Markdown
+                    html_bazi = (
+                        "<div style='text-align:center; background-color:#f0f2f6; padding:15px; border-radius:10px; margin-bottom:10px;'>"
+                        f"<p style='margin:0; font-size:14px; color:#555;'><b>{pillars_name[i]}</b></p>"
+                        "<hr style='margin:10px 0;'>"
+                        f"<p style='margin:0; font-size:12px; color:#888;'>{bazi_result['ten_gods'][keys[i][0]]}</p>"
+                        f"<h2 style='margin:5px 0; color:#1f77b4;'>{bazi_result['four_pillars'][keys[i][0]]}</h2>"
+                        f"<h2 style='margin:5px 0; color:#d62728;'>{bazi_result['four_pillars'][keys[i][1]]}</h2>"
+                        f"<p style='margin:0; font-size:12px; color:#888;'>{bazi_result['ten_gods'][keys[i][1]]}</p>"
+                        "</div>"
+                    )
+                    st.markdown(html_bazi, unsafe_allow_html=True)
 
             st.markdown("---")
             col_thai1, col_thai2 = st.columns(2)
