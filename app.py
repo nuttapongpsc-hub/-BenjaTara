@@ -94,9 +94,9 @@ if submit_btn:
             st.write(f"**ภาพรวม:** {report['prediction']}")
             
             tab1, tab2, tab3 = st.tabs(["💼 การงาน", "💰 การเงิน", "❤️ ความรัก"])
-            with tab1: st.info(report['details'].get('work', ''))
-            with tab2: st.success(report['details'].get('money', ''))
-            with tab3: st.warning(report['details'].get('love', ''))
+            with tab1: st.write(report['details'].get('work', ''))
+            with tab2: st.write(report['details'].get('money', ''))
+            with tab3: st.write(report['details'].get('love', ''))
 
             st.markdown("---")
             col_inc, col_war = st.columns(2)
