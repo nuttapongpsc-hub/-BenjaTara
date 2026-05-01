@@ -1,6 +1,5 @@
 class HybridSynthesisEngine:
     def __init__(self):
-        # คลังคำทำนายแบบพรรณนาโวหาร (Descriptive Wisdom) ที่มีความละเอียดสูงขึ้น
         self.element_wisdom_detailed = {
             "ไม้": {
                 "work": "พลังงานธาตุไม้เปรียบเสมือนต้นไม้ที่กำลังแตกกิ่งก้านสาขา ช่วงเวลานี้ดวงชะตาส่งเสริมให้เกิดการเริ่มต้นสิ่งใหม่ๆ เหมาะอย่างยิ่งสำหรับการขยายกิจการ การศึกษาหาความรู้เพิ่มเติม หรือการสร้างเครือข่ายคอนเนคชัน คุณจะมีวิสัยทัศน์ที่กว้างไกลและเปี่ยมไปด้วยความคิดสร้างสรรค์",
@@ -30,10 +29,8 @@ class HybridSynthesisEngine:
         }
 
     def _generate_dynamic_details(self, primary_element, score, is_smooth):
-        """สังเคราะห์ประโยคคำทำนายใหม่ให้ยาวและสละสลวยขึ้น"""
         wisdom = self.element_wisdom_detailed.get(primary_element, self.element_wisdom_detailed["ดิน"])
         
-        # ส่วนนำของประโยคเพื่อปรับน้ำหนักตามปริมาณธาตุ
         intensity_prefix = ""
         if score > 40:
             intensity_prefix = f"ด้วยพื้นดวงของคุณที่มีพลังงานธาตุ{primary_element}โดดเด่นและทรงพลังมาก "
@@ -42,7 +39,6 @@ class HybridSynthesisEngine:
         else:
             intensity_prefix = f"ด้วยสมดุลของพลังงานธาตุ{primary_element}ที่ทำงานร่วมกับดวงดาวในขณะนี้ "
 
-        # ส่วนขยายเรื่องอุปสรรคจากดาวจร
         flow_suffix = ""
         if not is_smooth:
             flow_suffix = " (ข้อควรระวัง: แม้ทิศทางโดยรวมจะดี แต่เนื่องจากมีอิทธิพลของดาวจรที่เดินผิดปกติหรือตกภพเสียเข้ามาแทรก จึงอาจเกิดความล่าช้าหรืออุปสรรคที่ไม่คาดคิด แนะนำให้เผื่อเวลาและมีแผนสำรองไว้เสมอ)"
@@ -65,41 +61,44 @@ class HybridSynthesisEngine:
 
         for planet, status in planets_data.items():
             if status['element'] in useful_gods:
-                # วิเคราะห์ภพเสียแบบลงรายละเอียด
+                dignity = status.get('dignity', 'มาตรฐานปกติ')
+                power_level = ""
+                if "เกษตร" in dignity or "อุจจ์" in dignity:
+                    power_level = "(🌟 กำลังดาวเข้มแข็งมาก)"
+                elif "นิจ" in dignity or "ประ" in dignity:
+                    power_level = "(⚠️ กำลังดาวอ่อนแอ/ลดทอน)"
+
                 if status['house'] in ["อริ", "มรณะ", "วินาศ"]:
                     if status['house'] == "อริ":
-                        warnings.append(f"ดาว{planet} ({status['type']}) ให้คุณแต่ตกภพ'อริ': โอกาสจะมาพร้อมกับการแข่งขันหรือต้องแก้ปัญหาก่อนจึงจะสำเร็จ")
+                        warnings.append(f"ดาว{planet} ให้คุณแต่ตกภพ'อริ' {power_level}: โอกาสจะมาพร้อมกับการแข่งขัน ต้องลงแรงแก้ปัญหาก่อนจึงจะสำเร็จ")
                     elif status['house'] == "มรณะ":
-                        warnings.append(f"ดาว{planet} ({status['type']}) ให้คุณแต่ตกภพ'มรณะ': จะมีโชคจากแดนไกล ต่างประเทศ หรือได้รับโอกาสจากการจบสิ้น/เปลี่ยนแปลงของบางสิ่ง")
+                        warnings.append(f"ดาว{planet} ให้คุณแต่ตกภพ'มรณะ' {power_level}: จะมีโชคจากแดนไกล หรือได้รับโอกาสจากการจบสิ้น/เปลี่ยนแปลงของบางสิ่ง")
                     elif status['house'] == "วินาศ":
-                        warnings.append(f"ดาว{planet} ({status['type']}) ให้คุณแต่ตกภพ'วินาศ': มีเกณฑ์ได้โชคลาภอย่างลับๆ หรือความสำเร็จที่ยังไม่ควรเปิดเผยให้ใครรู้ในตอนนี้")
+                        warnings.append(f"ดาว{planet} ให้คุณแต่ตกภพ'วินาศ' {power_level}: มีเกณฑ์ได้โชคลาภอย่างลับๆ หรือเป็นความสำเร็จที่ยังไม่ควรเปิดเผย")
                 
-                # วิเคราะห์ดาวเดินช้า
                 elif status['is_walking_slowly']:
-                    warnings.append(f"ดาว{planet} ({status['type']}) ให้คุณ แต่ปัจจุบันกำลังโคจรพักร์/มนท์ (ถอยหลัง/เดินช้า): สิ่งที่คาดหวังอาจเกิดความล่าช้ากว่ากำหนด ขอให้ใจเย็นและรอคอยจังหวะ")
+                    warnings.append(f"ดาว{planet} ให้คุณ แต่กำลังโคจรพักร์/มนท์ (เดินช้า): สิ่งที่คาดหวังอาจเกิดความล่าช้ากว่ากำหนด ขอให้ใจเย็นและรอคอย")
                 
-                # วิเคราะห์ภพดีแบบลงรายละเอียด
                 else:
                     found_gods.append(status['element'])
                     house_meaning = ""
-                    if status['house'] == "กัมมะ": house_meaning = "ส่งเสริมด้านหน้าที่การงาน ความเจริญก้าวหน้า และการเลื่อนขั้นอย่างโดดเด่น"
-                    elif status['house'] == "กดุมภะ": house_meaning = "ดึงดูดทรัพย์สิน รายได้ และสภาพคล่องทางการเงินให้เพิ่มพูน"
-                    elif status['house'] == "ปัตนิ": house_meaning = "ส่งเสริมเรื่องคู่ครอง หุ้นส่วนทางธุรกิจ และการเซ็นสัญญาที่ได้เปรียบ"
-                    elif status['house'] == "ลาภะ": house_meaning = "นำมาซึ่งโชคลาภ ความสำเร็จ และความช่วยเหลือจากมิตรสหาย"
-                    elif status['house'] == "ศุภะ": house_meaning = "ให้คุณในด้านชื่อเสียง ความสงบสุขในชีวิต และความสำเร็จจากการเดินทาง"
-                    else: house_meaning = f"เข้ามาเกื้อหนุนและให้พลังงานบวกในเรื่องที่เกี่ยวข้องกับภพ{status['house']}"
+                    if status['house'] == "กัมมะ": house_meaning = "ส่งเสริมด้านหน้าที่การงาน ความก้าวหน้าอย่างโดดเด่น"
+                    elif status['house'] == "กดุมภะ": house_meaning = "ดึงดูดทรัพย์สิน รายได้ และสภาพคล่องทางการเงิน"
+                    elif status['house'] == "ปัตนิ": house_meaning = "ส่งเสริมเรื่องคู่ครอง หุ้นส่วน และการเซ็นสัญญา"
+                    elif status['house'] == "ลาภะ": house_meaning = "นำมาซึ่งโชคลาภ ความสำเร็จ และความช่วยเหลือ"
+                    elif status['house'] == "ศุภะ": house_meaning = "ให้คุณในด้านชื่อเสียง ความสงบสุข และความสำเร็จ"
+                    else: house_meaning = f"เกื้อหนุนและให้พลังงานบวกในเรื่องภพ{status['house']}"
 
-                    actionable_insights.append(f"พลังดาว{planet} ({status['type']}) โคจรเข้าภพ '{status['house']}': {house_meaning}")
+                    if "นิจ" in dignity or "ประ" in dignity:
+                        actionable_insights.append(f"พลังดาว{planet} เข้าภพ '{status['house']}' {power_level}: {house_meaning} (แต่อาจได้ผลลัพธ์ไม่เต็มร้อยนัก ควรพึ่งพาตนเองเป็นหลัก)")
+                    else:
+                        actionable_insights.append(f"พลังดาว{planet} เข้าภพ '{status['house']}' {power_level}: {house_meaning}")
 
-        # ปรับเกณฑ์การให้คะแนนให้แม่นยำขึ้น
         base_score = 50
         final_score = max(min(base_score + (len(found_gods) * 15) - (len(warnings) * 8), 100), 0)
-        
         primary_el = useful_gods[0] if useful_gods else "ดิน"
-        
         dynamic_details = self._generate_dynamic_details(primary_el, scores.get(primary_el, 20), len(warnings) < 2)
 
-        # สรุปภาพรวมให้ยาวขึ้น
         if final_score >= 75:
             summary = "🌟 ช่วงเวลานี้พลังงานธาตุและดวงดาวบนท้องฟ้าสอดประสานกันอย่างสมบูรณ์แบบ จังหวะชีวิตเป็นใจให้คุณลงมือทำเรื่องสำคัญหรือตัดสินใจเรื่องใหญ่ได้อย่างมั่นใจ อุปสรรคที่มีจะถูกปัดเป่า ถือเป็นนาทีทองของดวงชะตา"
         elif final_score >= 50:
