@@ -6,8 +6,8 @@ from BaziAnalyzer import BaziAnalyzer
 from ThaiAstrologyEngine import ThaiAstrologyEngine
 from HybridSynthesisEngine import HybridSynthesisEngine
 
-def render_thai_astrology_chart(thai_data, title="ดวงชะตา"):
-    """สร้างตารางดวงอีแปะ 12 ราศี (ตารางสี่เหลี่ยมแบบไทย)"""
+def render_square_chart(thai_data, title="ดวงชะตา"):
+    """สร้างตารางดวงอีแปะ (ตารางสี่เหลี่ยมแบบไทยโบราณ)"""
     planet_symbols = {
         "อาทิตย์ (๑)": "๑", "จันทร์ (๒)": "๒", "อังคาร (๓)": "๓",
         "พุธ (๔)": "๔", "พฤหัสบดี (๕)": "๕", "ศุกร์ (๖)": "๖",
@@ -37,7 +37,6 @@ def render_thai_astrology_chart(thai_data, title="ดวงชะตา"):
 
     html = f"<div style='text-align:center; margin-bottom: 20px;'><h4>{title}</h4>"
     html += "<table style='border-collapse: collapse; margin: 0 auto; background-color: white;'>"
-    
     for row in grid_layout:
         html += "<tr>"
         for sign_idx in row:
@@ -46,17 +45,83 @@ def render_thai_astrology_chart(thai_data, title="ดวงชะตา"):
             else:
                 stars = " ".join(boxes[sign_idx])
                 sign_name = zodiac_names[sign_idx]
-                
-                # เขียน HTML แบบต่อสตริงเพื่อป้องกัน Streamlit มองเป็น Code Block
                 html += f"<td style='border: 1px solid #ccc; width: 60px; height: 60px; text-align: center; vertical-align: top; padding: 5px; position: relative;'>"
                 html += f"<div style='font-size: 14px;'>{stars}</div>"
                 html += f"<div style='position: absolute; bottom: 2px; right: 2px; font-size: 8px; color: #aaa;'>{sign_name}</div>"
                 html += f"</td>"
-                
         html += "</tr>"
     html += "</table></div>"
     return html
 
+def render_circular_chart(thai_data, title="ดวงชะตา"):
+    """สร้างตารางดวงราศีจักร (วงกลม) ด้วย Plotly"""
+    planet_symbols = {
+        "อาทิตย์ (๑)": "๑", "จันทร์ (๒)": "๒", "อังคาร (๓)": "๓",
+        "พุธ (๔)": "๔", "พฤหัสบดี (๕)": "๕", "ศุกร์ (๖)": "๖",
+        "เสาร์ (๗)": "๗", "ราหู (๘)": "๘", "มฤตยู (๐)": "๐"
+    }
+    zodiac_names = ["เมษ", "พฤษภ", "มิถุน", "กรกฎ", "สิงห์", "กันย์", "ตุลย์", "พิจิก", "ธนู", "มังกร", "กุมภ์", "มีน"]
+    
+    boxes = {i: [] for i in range(12)}
+    boxes[thai_data['lagna_index']].append("<span style='color:red;'><b>ล</b></span>")
+    
+    for p_name, p_data in thai_data['planets'].items():
+        sign_index = zodiac_names.index(p_data['sign'])
+        if "เกษตร" in p_data['dignity'] or "อุจจ์" in p_data['dignity']:
+            sym = f"<span style='color:green;'><b>{planet_symbols[p_name]}</b></span>"
+        elif "นิจ" in p_data['dignity'] or "ประ" in p_data['dignity']:
+            sym = f"<span style='color:orange;'><b>{planet_symbols[p_name]}</b></span>"
+        else:
+            sym = f"<span style='color:black;'><b>{planet_symbols[p_name]}</b></span>"
+        boxes[sign_index].append(sym)
+
+    # จัดการตัดบรรทัดถ้ามีดาวอยู่ในราศีเดียวกันเยอะเกินไป
+    def format_stars(star_list):
+        if not star_list: return ""
+        chunks = [" ".join(star_list[i:i+3]) for i in range(0, len(star_list), 3)]
+        return "<br>".join(chunks)
+
+    stars_texts = [format_stars(boxes[i]) for i in range(12)]
+    angles = [15 + (i * 30) for i in range(12)] # มุมกึ่งกลางของแต่ละราศี
+    
+    fig = go.Figure()
+
+    # วาดช่องวงล้อ 12 ราศี
+    fig.add_trace(go.Barpolar(
+        r=[1] * 12, theta=angles, width=[30] * 12,
+        marker_color='rgba(240, 242, 246, 0.5)',
+        marker_line_color='lightgray', marker_line_width=1,
+        hoverinfo='none'
+    ))
+
+    # ใส่ชื่อราศีไว้ขอบนอก
+    fig.add_trace(go.Scatterpolar(
+        r=[1.15] * 12, theta=angles, mode='text',
+        text=zodiac_names, textfont=dict(size=12, color='gray'),
+        hoverinfo='none'
+    ))
+
+    # ใส่เลขดาวไทยไว้ข้างในวงกลม
+    fig.add_trace(go.Scatterpolar(
+        r=[0.65] * 12, theta=angles, mode='text',
+        text=stars_texts, textfont=dict(size=16),
+        hoverinfo='none'
+    ))
+
+    fig.update_layout(
+        title=dict(text=title, x=0.5, font=dict(size=16)),
+        polar=dict(
+            radialaxis=dict(visible=False, range=[0, 1.3]),
+            # หมุนให้ราศีเมษอยู่ด้านบนตรงกลาง และเรียงทวนเข็มนาฬิกา
+            angularaxis=dict(visible=False, direction="counterclockwise", rotation=90) 
+        ),
+        showlegend=False,
+        margin=dict(t=40, b=10, l=10, r=10),
+        height=350, dragmode=False
+    )
+    return fig
+
+# --- ส่วนตั้งค่าหน้าเว็บหลัก ---
 st.set_page_config(page_title="BenjaTara - เบญจทารา", page_icon="🔮", layout="wide", initial_sidebar_state="expanded")
 
 st.markdown("""
@@ -140,7 +205,6 @@ if submit_btn:
             
             for i, col in enumerate(cols):
                 with col:
-                    # แก้ไขการต่อสตริง HTML ของ Bazi Chart ให้ปลอดภัยจากบั๊ก Markdown
                     html_bazi = (
                         "<div style='text-align:center; background-color:#f0f2f6; padding:15px; border-radius:10px; margin-bottom:10px;'>"
                         f"<p style='margin:0; font-size:14px; color:#555;'><b>{pillars_name[i]}</b></p>"
@@ -153,14 +217,25 @@ if submit_btn:
                     )
                     st.markdown(html_bazi, unsafe_allow_html=True)
 
+            # --- เพิ่มระบบ Tab เพื่อให้เลือกดูดวงวงกลมหรือสี่เหลี่ยมได้ ---
             st.markdown("---")
-            col_thai1, col_thai2 = st.columns(2)
-            with col_thai1:
-                thai_natal_html = render_thai_astrology_chart(thai_natal, "ดวงกำเนิด (ราศีจักร)")
-                st.markdown(thai_natal_html, unsafe_allow_html=True)
-            with col_thai2:
-                thai_transit_html = render_thai_astrology_chart(thai_transit, "ดวงจร (ปัจจุบัน)")
-                st.markdown(thai_transit_html, unsafe_allow_html=True)
+            st.markdown("#### 🌌 โครงสร้างดวงดาวโหราศาสตร์ไทย")
+            tab_sq, tab_cir = st.tabs(["🔲 ตารางดวงอีแปะ (สี่เหลี่ยม)", "⭕ ตารางดวงราศีจักร (วงกลม)"])
+            
+            with tab_sq:
+                col_thai1, col_thai2 = st.columns(2)
+                with col_thai1:
+                    st.markdown(render_square_chart(thai_natal, "ดวงกำเนิด (ราศีจักร)"), unsafe_allow_html=True)
+                with col_thai2:
+                    st.markdown(render_square_chart(thai_transit, "ดวงจร (ปัจจุบัน)"), unsafe_allow_html=True)
+                    
+            with tab_cir:
+                col_cir1, col_cir2 = st.columns(2)
+                with col_cir1:
+                    st.plotly_chart(render_circular_chart(thai_natal, "ดวงกำเนิด (ราศีจักร)"), use_container_width=True)
+                with col_cir2:
+                    st.plotly_chart(render_circular_chart(thai_transit, "ดวงจร (ปัจจุบัน)"), use_container_width=True)
+            # -------------------------------------------------------------
 
             st.markdown("---")
             st.header("🔮 คำทำนายและการพยากรณ์สถานการณ์ปัจจุบัน")
