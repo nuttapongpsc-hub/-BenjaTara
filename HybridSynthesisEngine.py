@@ -1,89 +1,102 @@
 class HybridSynthesisEngine:
     def __init__(self):
-        # 1. สร้างสะพานเชื่อม (The Bridge) ระหว่างธาตุจีน กับ ดาวไทย
-        self.element_to_planet = {
-            "ไฟ": ["๑", "๓"],    # อาทิตย์, อังคาร
-            "ดิน": ["๒", "๕"],   # จันทร์, พฤหัสบดี
-            "ทอง": ["๔", "๖"],   # พุธ, ศุกร์
-            "น้ำ": ["๘", "๐"],    # ราหู, มฤตยู
-            "ไม้": ["๓", "๕"]    # อังคาร(พลังขับเคลื่อน), พฤหัส(การเติบโต)
+        # ส่วนประกอบของคำทำนาย (Phrase Bank) เพื่อนำมาประกอบกันแบบจิ๊กซอว์
+        self.element_wisdom = {
+            "ไม้": {
+                "nature": "การเติบโตและการขยายตัว",
+                "strategy": "เน้นการวางแผนระยะยาวและการเรียนรู้",
+                "vibe": "มีความคิดสร้างสรรค์และเปี่ยมด้วยเมตตา"
+            },
+            "ไฟ": {
+                "nature": "โชติช่วงและการแสดงออก",
+                "strategy": "เน้นความรวดเร็วและการสร้างชื่อเสียง",
+                "vibe": "มีความกระตือรือร้นและส่งต่อพลังงานให้ผู้อื่น"
+            },
+            "ดิน": {
+                "nature": "ความมั่นคงและการสะสม",
+                "strategy": "เน้นความรอบคอบและการสร้างระบบที่จับต้องได้",
+                "vibe": "มีความหนักแน่นและเป็นที่พึ่งพาได้"
+            },
+            "ทอง": {
+                "nature": "ความเฉียบคมและการตัดสินใจ",
+                "strategy": "เน้นความเด็ดขาดและการบริหารจัดการคน",
+                "vibe": "มีความยุติธรรมและยึดมั่นในหลักการ"
+            },
+            "น้ำ": {
+                "nature": "การไหลลื่นและการปรับตัว",
+                "strategy": "เน้นการเจรจาและใช้ไหวพริบพลิกแพลง",
+                "vibe": "มีความลึกซึ้งและเข้าใจสถานการณ์ได้ดี"
+            }
         }
 
-    def verify_and_predict(self, bazi_data, thai_data):
-        """
-        นำ JSON ของทั้ง 2 ศาสตร์มาเปรียบเทียบกัน
-        """
-        useful_gods = bazi_data.get("useful_gods", [])
-        thai_planets = thai_data.get("planets", {})
+    def _generate_dynamic_details(self, primary_element, score, is_smooth):
+        """สังเคราะห์ประโยคคำทำนายใหม่ตามระดับคะแนนและสถานะดวงดาว"""
+        wisdom = self.element_wisdom.get(primary_element, self.element_wisdom["ดิน"])
         
-        confidence_score = 50 # คะแนนเริ่มต้น
-        insights = []
-        warnings = []
-
-        # 2. Logic การตรวจจับ "จุดส่งเสริม" (Synergy Check)
-        for element in useful_gods:
-            matched_planets = self.element_to_planet.get(element, [])
-            
-            for planet_name, planet_data in thai_planets.items():
-                if planet_data["id"] in matched_planets:
-                    
-                    # เช็กสถานะของดาวบนท้องฟ้า (โคจรปกติ = ดี, พักร์/ถอยหลัง = มีอุปสรรค)
-                    if planet_data["motion"] == "ปกติ":
-                        confidence_score += 15
-                        insights.append(
-                            f"✅ พลังงานธาตุ{element}ให้คุณ และดาว{planet_name}({planet_data['id']}) โคจรเป็นปกติ "
-                            f"ส่งผลดีอย่างมากให้ลงมือทำเรื่องสำคัญได้เลย"
-                        )
-                    elif planet_data["motion"] in ["พักร์ (ถอยหลัง)", "มนท์ (ช้า)"]:
-                        confidence_score -= 5
-                        warnings.append(
-                            f"⚠️ แม้ธาตุ{element}จะให้คุณ แต่ดาว{planet_name}({planet_data['id']}) กำลังเดิน{planet_data['motion']} "
-                            f"โอกาสมีอยู่แต่จะเกิดความล่าช้าหรือต้องรอคอย"
-                        )
-
-        # 3. Logic วิเคราะห์ภาพรวมและเลือกคำทำนาย
-        confidence_score = min(max(confidence_score, 0), 100) # กำหนดให้อยู่ในกรอบ 0-100%
-        
-        final_prediction = ""
-        if confidence_score >= 80:
-            final_prediction = "วันนี้ดวงดาวและพลังงานธาตุสอดประสานกันอย่างสมบูรณ์แบบ เป็นจังหวะทองคำที่คุณควรเร่งเจรจาหรือเริ่มโปรเจกต์ใหม่"
-        elif 50 <= confidence_score < 80:
-            final_prediction = "สถานการณ์ภาพรวมอยู่ในเกณฑ์บวก ราบรื่น แต่อาจมีเรื่องจุกจิกเล็กน้อย ให้ใช้ความรอบคอบในการตัดสินใจ"
+        # ปรับความหมายตามพลังงานธาตุ (Intensity Analysis)
+        if score > 40:
+            intensity = f"ด้วยพลังธาตุ{primary_element}ที่โดดเด่นมากในดวงชะตา "
+        elif score < 15:
+            intensity = f"แม้ธาตุ{primary_element}จะมีปริมาณน้อยแต่เป็นธาตุให้คุณ "
         else:
-            final_prediction = "พลังงานและดวงดาวขัดแย้งกัน ควรหลีกเลี่ยงการทำธุรกรรมสำคัญ เน้นจัดการงานเอกสารหรืองานเบื้องหลังจะปลอดภัยที่สุด"
+            intensity = f"ด้วยความสมดุลของธาตุ{primary_element}ที่พอดี "
+
+        # ปรับความหมายตามสถานะดาว (Flow Analysis)
+        if is_smooth:
+            flow_msg = "ส่งผลให้จังหวะชีวิตมีความคล่องตัวสูง มีโอกาสเข้ามาให้หยิบจับแบบไม่ทันตั้งตัว"
+        else:
+            flow_msg = "แต่ต้องระวังจังหวะที่ล่าช้าลงเล็กน้อย แนะนำให้รอคอยจังหวะที่เหมาะสมและอย่ารีบร้อน"
+
+        # สร้างรายละเอียด 3 ด้าน
+        details = {
+            "work": f"{intensity} {wisdom['strategy']} {flow_msg}",
+            "money": f"การเงินเน้น{wisdom['nature']} มีเกณฑ์ได้ลาภจากช่องทางที่เกี่ยวข้องกับธาตุ{primary_element}โดยตรง",
+            "love": f"ลักษณะความรักในช่วงนี้คือ{wisdom['vibe']} ความเข้าใจกันจะนำมาซึ่งความสุข"
+        }
+        return details
+
+    def verify_and_predict(self, bazi_result, thai_result):
+        useful_gods = bazi_result['useful_gods']
+        scores = bazi_result.get('scores', {})
+        found_gods = []
+        warnings = []
+        actionable_insights = []
+        
+        # 1. วิเคราะห์ดาวจรเปรียบเทียบกับธาตุให้คุณ
+        for planet, status in thai_result.items():
+            if status['element'] in useful_gods:
+                if status['is_walking_slowly']:
+                    warnings.append(f"ดาว{planet} (ธาตุ{status['element']}) ให้คุณ แต่กำลังเดินช้าลง อาจทำให้เป้าหมายคลาดเคลื่อนไปบ้าง")
+                else:
+                    found_gods.append(status['element'])
+                    actionable_insights.append(f"พลังดาว{planet} ส่งเสริมธาตุ{status['element']} ของคุณได้อย่างยอดเยี่ยมในตอนนี้")
+
+        # 2. คำนวณ Confidence Score แบบถ่วงน้ำหนัก
+        base_score = 60
+        bonus = len(found_gods) * 10
+        penalty = len(warnings) * 5
+        final_score = max(min(base_score + bonus - penalty, 100), 0)
+
+        # 3. สังเคราะห์คำทำนาย
+        primary_el = useful_gods[0] if useful_gods else "ดิน"
+        el_score = scores.get(primary_el, 20)
+        is_smooth = len(warnings) < 2
+        
+        # เรียกใช้ฟังก์ชันสังเคราะห์ประโยค
+        dynamic_details = self._generate_dynamic_details(primary_el, el_score, is_smooth)
+
+        # สรุปภาพรวม
+        if final_score >= 75:
+            summary = f"ช่วงเวลานี้พลังงานธาตุ{primary_el}กำลังรุ่งโรจน์ จังหวะชีวิตเป็นใจให้ลงมือทำเรื่องสำคัญ"
+        elif final_score >= 50:
+            summary = f"สถานการณ์อยู่ในระดับที่ควบคุมได้ มีความราบรื่นสลับกับความล่าช้าในบางจังหวะ"
+        else:
+            summary = "ควรเน้นการตั้งรับและวางแผนอย่างรอบคอบ พลังงานดาวจรยังไม่ส่งเสริมเต็มที่"
 
         return {
-            "score": confidence_score,
-            "prediction": final_prediction,
-            "actionable_insights": insights,
+            "score": final_score,
+            "prediction": summary,
+            "details": dynamic_details,
+            "actionable_insights": actionable_insights,
             "warnings": warnings
         }
-
-# --- จำลองการทำงาน (Mock Data) ---
-# สมมติว่านี่คือ Output ที่ประมวลผลเสร็จแล้วจากฐานข้อมูล
-mock_bazi_output = {
-    "chart_type": "ดิถีอ่อนแอ",
-    "useful_gods": ["ทอง", "ดิน"] # ต้องการธาตุทองและดินมาเสริม
-}
-
-mock_thai_output = {
-    "planets": {
-        "พฤหัสบดี": {"id": "๕", "motion": "ปกติ", "sign_name": "ธนู"}, # ธาตุดิน เดินปกติ
-        "ศุกร์": {"id": "๖", "motion": "พักร์ (ถอยหลัง)", "sign_name": "พิจิก"}, # ธาตุทอง เดินถอยหลัง
-        "อาทิตย์": {"id": "๑", "motion": "ปกติ", "sign_name": "พฤษภ"} 
-    }
-}
-
-# รันระบบประมวลผล
-engine = HybridSynthesisEngine()
-result = engine.verify_and_predict(mock_bazi_output, mock_thai_output)
-
-# แสดงผลลัพธ์
-print("🎯 [ ผลการวิเคราะห์ดวงชะตารายวัน ] 🎯")
-print(f"ความมั่นใจของคำทำนาย (Confidence Score): {result['score']}%")
-print(f"คำทำนายหลัก: {result['prediction']}")
-print("\n[ รายละเอียดเชิงลึก ]")
-for insight in result['actionable_insights']:
-    print(insight)
-for warning in result['warnings']:
-    print(warning)
