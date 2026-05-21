@@ -2,55 +2,95 @@ import random
 
 class TarotEngine:
     def __init__(self):
+        # ฐานข้อมูลไพ่ยิปซีครบชุด 78 ใบ พร้อมภาพออฟไลน์ในโฟลเดอร์ images/
         self.cards = {
-            "The Fool": {
-                "meaning": "การเริ่มต้นใหม่, อิสระ, การเดินทางที่คาดไม่ถึง, การกล้าเสี่ยง",
-                "image": "https://upload.wikimedia.org/wikipedia/en/9/90/RWS_Tarot_00_Fool.jpg"
-            },
-            "The Magician": {
-                "meaning": "ความสามารถรอบด้าน, การสร้างปาฏิหาริย์ด้วยตัวเอง, พลังสร้างสรรค์, การสื่อสาร",
-                "image": "https://upload.wikimedia.org/wikipedia/en/d/de/RWS_Tarot_01_Magician.jpg"
-            },
-            "The High Priestess": {
-                "meaning": "สัญชาตญาณ, ความลึกลับ, การใช้ความรู้สึกนำทาง, พลังหยิน",
-                "image": "https://upload.wikimedia.org/wikipedia/en/8/88/RWS_Tarot_02_High_Priestess.jpg"
-            },
-            "The Emperor": {
-                "meaning": "อำนาจ, ความเป็นผู้นำ, ความมั่นคงในหน้าที่การงาน, กฎระเบียบ",
-                "image": "https://upload.wikimedia.org/wikipedia/en/c/c3/RWS_Tarot_04_Emperor.jpg"
-            },
-            "The Lovers": {
-                "meaning": "การตัดสินใจครั้งสำคัญ, ความสัมพันธ์, ความสามัคคี, เสน่ห์ดึงดูด",
-                "image": "https://upload.wikimedia.org/wikipedia/en/d/db/RWS_Tarot_06_Lovers.jpg"
-            },
-            "The Chariot": {
-                "meaning": "ความมุ่งมั่น, การควบคุมสถานการณ์, ชัยชนะที่ต้องแลกมาด้วยความพยายาม, การเดินทาง",
-                "image": "https://upload.wikimedia.org/wikipedia/en/9/9b/RWS_Tarot_07_Chariot.jpg"
-            },
-            "Death": {
-                "meaning": "การจบสิ้นเพื่อเริ่มต้นใหม่, การเปลี่ยนแปลงข้ามผ่านสภาวะเดิม, การปล่อยวาง",
-                "image": "https://upload.wikimedia.org/wikipedia/en/d/d7/RWS_Tarot_13_Death.jpg"
-            },
-            "The Star": {
-                "meaning": "ความหวัง, แรงบันดาลใจ, การฟื้นฟูเยียวยา, โชคชะตาที่สดใส",
-                "image": "https://upload.wikimedia.org/wikipedia/en/c/cd/RWS_Tarot_17_Star.jpg"
-            },
-            "Ace of Wands": {
-                "meaning": "โอกาสใหม่ในเรื่องงาน, แรงบันดาลใจที่พุ่งพล่าน, พลังแห่งการริเริ่ม",
-                "image": "https://upload.wikimedia.org/wikipedia/en/1/11/Wands01.jpg"
-            },
-            "Ace of Pentacles": {
-                "meaning": "โชคลาภทางการเงิน, ข่าวดีเรื่องรายได้, ความมั่นคงทางวัตถุ, การเริ่มต้นธุรกิจ",
-                "image": "https://upload.wikimedia.org/wikipedia/en/f/fd/Pents01.jpg"
-            },
-            "Ace of Swords": {
-                "meaning": "ความชัดเจน, การตัดสินใจที่เด็ดขาด, การเอาชนะอุปสรรคด้วยสติปัญญา",
-                "image": "https://upload.wikimedia.org/wikipedia/en/1/1a/Swords01.jpg"
-            },
-            "Ace of Cups": {
-                "meaning": "ความสุขทางใจ, ความรักครั้งใหม่, ความอิ่มเอมใจ, อารมณ์ที่ลึกซึ้ง",
-                "image": "https://upload.wikimedia.org/wikipedia/en/3/36/Cups01.jpg"
-            }
+            # ================= MAJOR ARCANA (22 ใบ) =================
+            "The Fool": {"meaning": "การเริ่มต้นใหม่, อิสระ, การเดินทางที่คาดไม่ถึง, การกล้าเสี่ยง, การทำตามใจเรียกร้อง", "image": "images/the fool.jpg"},
+            "The Magician": {"meaning": "ความสามารถรอบด้าน, การสร้างปาฏิหาริย์ด้วยตัวเอง, พลังสร้างสรรค์, การสื่อสารที่โน้มน้าวใจ", "image": "images/the magician.jpg"},
+            "The High Priestess": {"meaning": "สัญชาตญาณ, ความลึกลับ, การใช้ความรู้สึกนำทาง, พลังหยิน, เซนส์ที่แม่นยำ", "image": "images/the high priestess.jpg"},
+            "The Empress": {"meaning": "ความอุดมสมบูรณ์, ความเป็นแม่, ความรักที่อบอุ่น, ความงดงาม, การเจริญเติบโต", "image": "images/the empress.jpg"},
+            "The Emperor": {"meaning": "อำนาจ, ความเป็นผู้นำ, ความมั่นคงในหน้าที่การงาน, กฎระเบียบ, ผู้ชายที่มีอิทธิพล", "image": "images/the emperor.jpg"},
+            "The Hierophant": {"meaning": "ประเพณี, ความเชื่อ, ครูบาอาจารย์, การขอคำปรึกษา, สิ่งศักดิ์สิทธิ์คุ้มครอง", "image": "images/the hierophant.jpg"},
+            "The Lovers": {"meaning": "การตัดสินใจครั้งสำคัญ, ความสัมพันธ์, ความสามัคคี, เสน่ห์ดึงดูด, ความรักที่ต้องเลือก", "image": "images/the lovers.jpg"},
+            "The Chariot": {"meaning": "ความมุ่งมั่น, การควบคุมสถานการณ์, ชัยชนะที่ต้องแลกมาด้วยความพยายาม, การเดินทางไกล", "image": "images/the chariot.jpg"},
+            "Strength": {"meaning": "ความกล้าหาญ, พลังใจที่เข้มแข็ง, การเอาชนะอุปสรรคด้วยความอ่อนโยน, การควบคุมสติ", "image": "images/strength.jpg"},
+            "The Hermit": {"meaning": "การปลีกวิเวก, การค้นหาคำตอบในใจ, ความสงบ, การใช้สติปัญญาไตร่ตรอง, ความสันโดษ", "image": "images/the hermit.jpg"},
+            "Wheel of Fortune": {"meaning": "โชคชะตา, การเปลี่ยนแปลงกะทันหัน, กงล้อแห่งกรรม, โอกาสใหม่ๆ, จุดเปลี่ยนของชีวิต", "image": "images/wheel of fortune.jpg"},
+            "Justice": {"meaning": "ความยุติธรรม, ความสมดุล, กฎหมาย, คดีความ, การตัดสินใจด้วยเหตุและผล", "image": "images/justice.jpg"},
+            "The Hanged Man": {"meaning": "การเสียสละ, การรอคอย, การมองมุมกลับ, ภาวะหยุดชะงักเพื่อทบทวนตัวเอง", "image": "images/the hanged man.jpg"},
+            "Death": {"meaning": "การจบสิ้นเพื่อเริ่มต้นใหม่, การเปลี่ยนแปลงข้ามผ่านสภาวะเดิม, การปล่อยวางอดีต", "image": "images/death.jpg"},
+            "Temperance": {"meaning": "การปรับตัว, การโยกย้าย, ความสมดุล, การผสมผสานสิ่งใหม่ๆ, การเดินทางต่างถิ่น", "image": "images/temperance.jpg"},
+            "The Devil": {"meaning": "กิเลส, พันธนาการ, ความลุ่มหลง, การยึดติดกับวัตถุ, เสน่ห์ที่อันตราย", "image": "images/the devil.jpg"},
+            "The Tower": {"meaning": "การพังทลาย, เหตุการณ์ไม่คาดฝัน, การตื่นรู้, การรื้อโครงสร้างเก่าเพื่อสร้างใหม่", "image": "images/the tower.jpg"},
+            "The Star": {"meaning": "ความหวัง, แรงบันดาลใจ, การฟื้นฟูเยียวยา, โชคชะตาที่สดใส, ชื่อเสียงที่โดดเด่น", "image": "images/the star.jpg"},
+            "The Moon": {"meaning": "ความกังวล, ความสับสน, อารมณ์ที่ซ่อนเร้น, ภาพลวงตา, สัญชาตญาณที่คลุมเครือ", "image": "images/the moon.jpg"},
+            "The Sun": {"meaning": "ความสำเร็จ, ความสุขสมหวัง, พลังงานบวก, การเฉลิมฉลอง, ชัยชนะที่ชัดเจน", "image": "images/the sun.jpg"},
+            "Judgement": {"meaning": "การตื่นรู้, ผลของการกระทำ, การประเมินผล, การปลดแอก, การได้รับโอกาสครั้งที่สอง", "image": "images/judgement.jpg"},
+            "The World": {"meaning": "ความสมบูรณ์แบบ, การจบรอบวัฏจักรอย่างสวยงาม, ความสำเร็จระดับสูง, การเดินทางต่างประเทศ", "image": "images/the world.jpg"},
+
+            # ================= MINOR ARCANA: WANDS (ไม้เท้า - การงาน/พลังงาน) =================
+            "Ace of Wands": {"meaning": "โอกาสใหม่ในเรื่องงาน, แรงบันดาลใจที่พุ่งพล่าน, พลังแห่งการริเริ่มโปรเจกต์ใหม่", "image": "images/ace of wands.jpg"},
+            "Two of Wands": {"meaning": "การวางแผนอนาคต, วิสัยทัศน์ที่กว้างไกล, การรอคอยผลลัพธ์, หุ้นส่วนทางธุรกิจ", "image": "images/two of wands.jpg"},
+            "Three of Wands": {"meaning": "การขยายกิจการ, การเติบโต, โอกาสจากต่างประเทศ, ความสำเร็จในขั้นต้น", "image": "images/three of wands.jpg"},
+            "Four of Wands": {"meaning": "ความมั่นคง, การเฉลิมฉลองความสำเร็จ, รากฐานที่แข็งแรง, งานแต่งงานหรือขึ้นบ้านใหม่", "image": "images/four of wands.jpg"},
+            "Five of Wands": {"meaning": "การแข่งขัน, ความขัดแย้งเล็กๆ น้อยๆ, การถกเถียงเพื่อหาข้อสรุป, อุปสรรคที่ต้องฟันฝ่า", "image": "images/five of wands.jpg"},
+            "Six of Wands": {"meaning": "ชัยชนะ, การได้รับการยกย่อง, ข่าวดี, ความก้าวหน้าที่ได้รับการยอมรับจากคนรอบข้าง", "image": "images/six of wands.jpg"},
+            "Seven of Wands": {"meaning": "การต่อสู้เพื่อรักษาสิ่งที่มีอยู่, ความกล้าหาญ, การยืนหยัดต่ออุปสรรคเพียงลำพัง", "image": "images/seven of wands.jpg"},
+            "Eight of Wands": {"meaning": "ความรวดเร็ว, ข่าวสาร, การเดินทาง, เหตุการณ์ที่กำลังพุ่งเข้ามาอย่างฉับไวและราบรื่น", "image": "images/eight of wands.jpg"},
+            "Nine of Wands": {"meaning": "ความระแวดระวัง, การตั้งรับ, ประสบการณ์จากบาดแผลในอดีต, ความอดทนในโค้งสุดท้าย", "image": "images/nine of wands.jpg"},
+            "Ten of Wands": {"meaning": "ภาระที่หนักอึ้ง, ความรับผิดชอบล้นมือ, การทำงานหนักจนเกินไป, ความเหนื่อยล้า", "image": "images/ten of wands.jpg"},
+            "Page of Wands": {"meaning": "ข่าวดีเรื่องงานหรือการเรียน, ความกระตือรือร้น, การเริ่มต้นไอเดียใหม่ๆ", "image": "images/page of wands.jpg"},
+            "Knight of Wands": {"meaning": "ความใจร้อน, พลังงานที่พุ่งทะยาน, การเดินทางกะทันหัน, ความมุ่งมั่นที่จะลุย", "image": "images/knight of wands.jpg"},
+            "Queen of Wands": {"meaning": "ผู้หญิงเก่ง, ความมั่นใจในตัวเอง, มีเสน่ห์ดึงดูด, การบริหารจัดการที่ยอดเยี่ยม", "image": "images/queen of wands.jpg"},
+            "King of Wands": {"meaning": "ผู้นำที่มีวิสัยทัศน์, เจ้าของกิจการ, ผู้ชายวัยกลางคนที่มีความมุ่งมั่นและประสบความสำเร็จ", "image": "images/king of wands.jpg"},
+
+            # ================= MINOR ARCANA: CUPS (ถ้วย - ความรัก/อารมณ์) =================
+            "Ace of Cups": {"meaning": "ความสุขทางใจ, ความรักครั้งใหม่, ความอิ่มเอมใจ, อารมณ์ที่ลึกซึ้งและบริสุทธิ์", "image": "images/ace of cups.jpg"},
+            "Two of Cups": {"meaning": "ความรักที่สมหวัง, ความเข้าใจซึ่งกันและกัน, การแต่งงาน, หุ้นส่วนที่เข้ากันได้ดี", "image": "images/two of cups.jpg"},
+            "Three of Cups": {"meaning": "การเฉลิมฉลอง, มิตรภาพ, งานเลี้ยง, ความสุขที่ได้แบ่งปันกับเพื่อนฝูง", "image": "images/three of cups.jpg"},
+            "Four of Cups": {"meaning": "ความเบื่อหน่าย, ความไม่พอใจในสิ่งที่มี, การมองข้ามโอกาสใหม่ๆ ที่หยิบยื่นให้", "image": "images/four of cups.jpg"},
+            "Five of Cups": {"meaning": "ความเศร้าโศก, การสูญเสีย, การยึดติดกับอดีตที่ผิดหวัง (โดยลืมมองสิ่งที่ยังเหลืออยู่)", "image": "images/five of cups.jpg"},
+            "Six of Cups": {"meaning": "ความคิดถึง, ถ่านไฟเก่า, การหวนคืนของอดีต, ความทรงจำที่งดงามในวัยเด็ก", "image": "images/six of cups.jpg"},
+            "Seven of Cups": {"meaning": "ทางเลือกที่หลากหลาย, ภาพลวงตา, ความเพ้อฝัน, การตัดสินใจที่ยากลำบากเพราะมีตัวเลือกมาก", "image": "images/seven of cups.jpg"},
+            "Eight of Cups": {"meaning": "การเดินจากไป, การละทิ้งสิ่งที่เคยสร้างมาเพื่อค้นหาสิ่งที่ดีกว่า, ความผิดหวังลึกๆ", "image": "images/eight of cups.jpg"},
+            "Nine of Cups": {"meaning": "ความพึงพอใจในตัวเอง, ความสมบูรณ์พูนสุข, ไพ่แห่งความสมหวัง (Wish Card), การตามใจตัวเอง", "image": "images/nine of cups.jpg"},
+            "Ten of Cups": {"meaning": "ครอบครัวที่อบอุ่น, ความสุขสมบูรณ์ถึงขีดสุด, ความปรองดอง, ตอนจบที่แฮปปี้เอนดิ้ง", "image": "images/ten of cups.jpg"},
+            "Page of Cups": {"meaning": "ข่าวดีเรื่องความรัก, อารมณ์อ่อนไหว, เด็กหนุ่มสาวที่โรแมนติก, การเริ่มต้นของความรู้สึกดีๆ", "image": "images/page of cups.jpg"},
+            "Knight of Cups": {"meaning": "ชายหนุ่มโรแมนติก, ข้อเสนอเรื่องความรัก, การตามหาความฝัน, ศิลปินผู้มีอารมณ์ศิลป์", "image": "images/knight of cups.jpg"},
+            "Queen of Cups": {"meaning": "ผู้หญิงที่มีความเมตตา, อบอุ่น, อ่อนโยน, มีสัญชาตญาณความเป็นแม่สูง, ชอบช่วยเหลือผู้อื่น", "image": "images/queen of cups.jpg"},
+            "King of Cups": {"meaning": "ผู้ชายที่ควบคุมอารมณ์ได้ดี, มีความเมตตา, ที่ปรึกษาที่ดี, ผู้ใหญ่ที่อบอุ่นและใจเย็น", "image": "images/king of cups.jpg"},
+
+            # ================= MINOR ARCANA: SWORDS (ดาบ - ความคิด/ปัญหา) =================
+            "Ace of Swords": {"meaning": "ความชัดเจน, การตัดสินใจที่เด็ดขาด, การเอาชนะอุปสรรคด้วยสติปัญญา, จุดเริ่มต้นของความคิดใหม่", "image": "images/ace of swords.jpg"},
+            "Two of Swords": {"meaning": "ความลังเลใจ, การปิดกั้นตัวเอง, การอยู่ตรงกลางระหว่างความขัดแย้ง, การประนีประนอม", "image": "images/two of swords.jpg"},
+            "Three of Swords": {"meaning": "ความเสียใจ, ความเจ็บปวด, รักสามเส้า, การถูกหักหลัง, ความขัดแย้งที่สร้างบาดแผล", "image": "images/three of swords.jpg"},
+            "Four of Swords": {"meaning": "การพักผ่อน, การฟื้นฟูร่างกายและจิตใจ, การหยุดนิ่งเพื่อรอเวลา, การหลีกหนีปัญหาชั่วคราว", "image": "images/four of swords.jpg"},
+            "Five of Swords": {"meaning": "ความขัดแย้ง, ชัยชนะที่ได้ไม่คุ้มเสีย, การทะเลาะเบาะแว้ง, ทิฐิที่นำมาซึ่งความสูญเสีย", "image": "images/five of swords.jpg"},
+            "Six of Swords": {"meaning": "การข้ามพ้นอุปสรรค, การเดินทางเพื่อหนีปัญหา, สถานการณ์ค่อยๆ ดีขึ้นอย่างช้าๆ", "image": "images/six of swords.jpg"},
+            "Seven of Swords": {"meaning": "การเล่ห์เหลี่ยม, การทำอะไรอย่างลับๆ, การขโมย, การแก้ปัญหาด้วยวิธีพลิกแพลง", "image": "images/seven of swords.jpg"},
+            "Eight of Swords": {"meaning": "ความรู้สึกมืดมน, การถูกจำกัดสิทธิ์, สภาวะที่หาทางออกไม่ได้ (แต่มักเป็นเพราะความคิดตัวเอง)", "image": "images/eight of swords.jpg"},
+            "Nine of Swords": {"meaning": "ความเครียด, ฝันร้าย, ความวิตกกังวลอย่างหนัก, อาการนอนไม่หลับ, ปัญหาที่รุมเร้า", "image": "images/nine of swords.jpg"},
+            "Ten of Swords": {"meaning": "จุดต่ำสุดของชีวิต, ความเจ็บปวดแสนสาหัส, การถูกหักหลัง, จุดจบของปัญหา (เพราะไม่สามารถแย่กว่านี้ได้อีกแล้ว)", "image": "images/ten of swords.jpg"},
+            "Page of Swords": {"meaning": "ความอยากรู้อยากเห็น, ข่าวกรอง, การเฝ้าระวัง, เด็กที่ฉลาดแต่ดื้อรั้น", "image": "images/page of swords.jpg"},
+            "Knight of Swords": {"meaning": "ความใจร้อน, การพุ่งเข้าชนปัญหา, ความก้าวร้าว, เหตุการณ์ที่เกิดขึ้นอย่างฉับพลันและรุนแรง", "image": "images/knight of swords.jpg"},
+            "Queen of Swords": {"meaning": "ผู้หญิงเด็ดขาด, ความตรงไปตรงมา, การใช้เหตุผลมากกว่าอารมณ์, หญิงม่าย หรือคนเก่งที่พึ่งพาตัวเอง", "image": "images/queen of swords.jpg"},
+            "King of Swords": {"meaning": "ผู้ชายที่มีอำนาจตัดสินใจ, กฎหมาย, ความยุติธรรม, การใช้เหตุผลขั้นเด็ดขาด, คนในเครื่องแบบ", "image": "images/king of swords.jpg"},
+
+            # ================= MINOR ARCANA: PENTACLES (เหรียญ - การเงิน/วัตถุ) =================
+            "Ace of Pentacles": {"meaning": "โชคลาภทางการเงิน, ข่าวดีเรื่องรายได้, ความมั่นคงทางวัตถุ, การเริ่มต้นธุรกิจที่จับต้องได้", "image": "images/ace of pentacles.jpg"},
+            "Two of Pentacles": {"meaning": "การหมุนเงิน, การประคับประคองหลายสิ่งพร้อมกัน, ความยืดหยุ่นทางการเงิน, การรักษาสมดุล", "image": "images/two of pentacles.jpg"},
+            "Three of Pentacles": {"meaning": "การทำงานเป็นทีม, การเรียนรู้, การพัฒนาทักษะวิชาชีพ, ความร่วมมือที่ก่อให้เกิดรายได้", "image": "images/three of pentacles.jpg"},
+            "Four of Pentacles": {"meaning": "ความตระหนี่, การหวงแหนทรัพย์สิน, ความไม่ยอมเปลี่ยนแปลง, การยึดติดกับสิ่งที่ตัวเองมี", "image": "images/four of pentacles.jpg"},
+            "Five of Pentacles": {"meaning": "ความขัดสน, ปัญหาทางการเงิน, ความรู้สึกโดดเดี่ยว, การถูกทอดทิ้ง, การสูญเสียทรัพย์", "image": "images/five of pentacles.jpg"},
+            "Six of Pentacles": {"meaning": "การให้และการรับ, ความใจบุญ, การบริจาค, การกู้ยืมเงิน, ความสมดุลทางผลประโยชน์", "image": "images/six of pentacles.jpg"},
+            "Seven of Pentacles": {"meaning": "การรอคอยผลกำไร, การประเมินผลงาน, ความอดทนเพื่อผลลัพธ์ในระยะยาว, การลงทุน", "image": "images/seven of pentacles.jpg"},
+            "Eight of Pentacles": {"meaning": "ความอุตสาหะ, การทำงานหนัก, ความเชี่ยวชาญเฉพาะด้าน, การใส่ใจในรายละเอียด", "image": "images/eight of pentacles.jpg"},
+            "Nine of Pentacles": {"meaning": "ความมั่งคั่งด้วยตัวเอง, ความสำเร็จส่วนตัว, อิสระทางการเงิน, ความหรูหราสุขสบาย", "image": "images/nine of pentacles.jpg"},
+            "Ten of Pentacles": {"meaning": "ความมั่งคั่งของครอบครัว, มรดก, ความสำเร็จที่ส่งต่อถึงลูกหลาน, ความมั่นคงระยะยาว", "image": "images/ten of pentacles.jpg"},
+            "Page of Pentacles": {"meaning": "ข่าวดีเรื่องเงิน, เด็กที่ตั้งใจเรียนรู้, การเริ่มต้นโปรเจกต์ที่สร้างรายได้, นักศึกษา", "image": "images/page of pentacles.jpg"},
+            "Knight of Pentacles": {"meaning": "ความค่อยเป็นค่อยไป, ความขยันขันแข็ง, การทำงานที่น่าเบื่อแต่มั่นคง, คนที่ไว้ใจได้", "image": "images/knight of pentacles.jpg"},
+            "Queen of Pentacles": {"meaning": "ผู้หญิงที่มั่งคั่ง, มีความสุขกับความสมบูรณ์ทางวัตถุ, นักธุรกิจหญิง, ความใจดีมีเมตตา", "image": "images/queen of pentacles.jpg"},
+            "King of Pentacles": {"meaning": "ผู้ชายที่ร่ำรวย, ประสบความสำเร็จในธุรกิจ, เจ้าของกิจการ, ผู้ที่มั่นคงและพึ่งพาได้", "image": "images/king of pentacles.jpg"}
         }
 
     def get_all_card_names(self):
@@ -59,10 +99,11 @@ class TarotEngine:
 
     def get_card_info(self, card_name):
         """คืนค่าข้อมูลของไพ่ที่ระบุ (ความหมาย และ รูปภาพ)"""
+        # หากผู้ใช้ไม่เลือก หรือค้นหาไม่เจอ จะแสดงข้อมูลว่างๆ ไว้
         return self.cards.get(card_name, {"meaning": "ไม่พบข้อมูล", "image": ""})
 
     def draw_card(self):
-        """ฟังก์ชันสุ่มไพ่ 1 ใบ (สำหรับปุ่มเสี่ยงทายด้านล่าง)"""
+        """ฟังก์ชันสุ่มไพ่ 1 ใบ (สำหรับปุ่มเสี่ยงทายรายวันด้านล่างสุด)"""
         card_name = random.choice(list(self.cards.keys()))
         card_data = self.cards[card_name]
         return card_name, card_data["meaning"], card_data["image"]
