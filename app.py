@@ -1,13 +1,14 @@
 import streamlit as st
 from datetime import datetime
 import plotly.graph_objects as go
-import random  # เพิ่ม import random สำหรับระบบสับไพ่
+import random
 
 from BaziAnalyzer import BaziAnalyzer
 from ThaiAstrologyEngine import ThaiAstrologyEngine
 from HybridSynthesisEngine import HybridSynthesisEngine
 from TarotEngine import TarotEngine
 
+# --- ฟังก์ชันวาดตารางดวงไทย (สี่เหลี่ยม) ---
 def render_square_chart(thai_data, title="ดวงชะตา"):
     planet_symbols = {
         "อาทิตย์ (๑)": "๑", "จันทร์ (๒)": "๒", "อังคาร (๓)": "๓",
@@ -49,6 +50,7 @@ def render_square_chart(thai_data, title="ดวงชะตา"):
     html += "</table></div>"
     return html
 
+# --- ฟังก์ชันวาดตารางดวงไทย (วงกลม) ---
 def render_circular_chart(thai_data, title="ดวงชะตา"):
     planet_symbols = {
         "อาทิตย์ (๑)": "๑", "จันทร์ (๒)": "๒", "อังคาร (๓)": "๓",
@@ -101,6 +103,7 @@ st.title("🔮 เบญจทารา (BenjaTara)")
 st.subheader("ระบบพยากรณ์และสังเคราะห์พลังงานธาตุผสมผสานโหราศาสตร์ไทยและไพ่ยิปซี")
 st.markdown("---")
 
+# ใช้ Session State เพื่อเก็บข้อมูลการทำนาย
 if 'analysis_done' not in st.session_state:
     st.session_state.analysis_done = False
 if 'tarot_result' not in st.session_state:
@@ -122,7 +125,7 @@ with st.sidebar:
         
         st.write("---")
         st.markdown("#### 🃏 เลือกไพ่ยิปซีประจำตัว (คว่ำหน้า)")
-        st.caption("ทำสมาธิ และเลือกหมายเลขตำแหน่งไพ่ 3 ใบที่ดึงดูดใจคุณที่สุด")
+        st.caption("ทำสมาธิ และเลือกตำแหน่งไพ่ 3 ใบที่ดึงดูดใจคุณที่สุด")
         
         # --- ระบบจำลองไพ่คว่ำหน้า ---
         all_cards_list = tarot_engine.get_all_card_names()
@@ -130,7 +133,7 @@ with st.sidebar:
         deck_positions = [f"ไพ่ตำแหน่งที่ {i}" for i in range(1, total_cards + 1)]
         
         selected_positions = st.multiselect(
-            f"เลือกไพ่ 3 ใบ (จาก {total_cards} ใบ)", 
+            f"เลือกไพ่ 3 ใบ (จากสำรับ {total_cards} ใบ)", 
             options=deck_positions, 
             max_selections=3
         )
@@ -148,7 +151,7 @@ if submit_btn:
                 shuffled_deck = all_cards_list.copy()
                 random.shuffle(shuffled_deck) # สลับไพ่ใหม่ทุกครั้งที่กดปุ่ม
                 
-                # แปลงข้อความ "ไพ่ตำแหน่งที่ X" เป็น Index (0 ถึง total_cards-1)
+                # แปลงข้อความ "ไพ่ตำแหน่งที่ X" เป็น Index 
                 selected_indices = [int(pos.replace("ไพ่ตำแหน่งที่ ", "")) - 1 for pos in selected_positions]
                 
                 # ดึงชื่อไพ่จากสำรับที่สับแล้ว ตามตำแหน่งที่ผู้ใช้เลือกมา
@@ -179,16 +182,16 @@ if submit_btn:
                 st.session_state.report = report
                 st.session_state.thai_natal = thai_natal
                 st.session_state.thai_transit = thai_transit
-                st.session_state.selected_tarot_cards = selected_tarot_cards # เก็บไพ่ที่สุ่มได้
+                st.session_state.selected_tarot_cards = selected_tarot_cards 
                 
             except Exception as e:
                 st.error(f"❌ เกิดข้อผิดพลาดในการคำนวณ: {e}")
 
-# --- ส่วนแสดงผลดวงชะตา (ดึงจาก Session State) ---
+# --- ส่วนแสดงผลดวงชะตา ---
 if st.session_state.analysis_done:
     st.header(f"📊 ผลการวิเคราะห์ดวงชะตา: คุณ{st.session_state.name}")
     
-    # --- โซนแสดงไพ่ 3 ใบที่ผู้ใช้เลือก (ตอนนี้เป็นไพ่ที่ถูกสุ่มมาแล้ว) ---
+    # โซนแสดงไพ่ 3 ใบที่ผู้ใช้เลือก (หลังจากการสับไพ่)
     st.markdown("#### 🃏 ไพ่ยิปซีประจำตัว (จากตำแหน่งที่คุณเลือก)")
     st.caption("หน้าไพ่สะท้อนถึงสภาวะ อดีต - ปัจจุบัน - อนาคต หรือภาพรวมของสถานการณ์ที่คุณกำลังเผชิญ")
     
@@ -199,6 +202,7 @@ if st.session_state.analysis_done:
         card_info = tarot_engine.get_card_info(card_name)
         with t_cols[idx]:
             st.markdown(f"<div class='tarot-card-box'>", unsafe_allow_html=True)
+            # แสดงรูปจากโฟลเดอร์ภาพ (ออฟไลน์)
             st.image(card_info["image"], use_container_width=True)
             st.markdown(f"<h5 style='color:#636EFA; margin-top:10px;'>{card_name}</h5>", unsafe_allow_html=True)
             st.markdown(f"<p style='font-size:0.85rem; color:#888; margin-bottom:5px;'>{card_labels[idx]}</p>", unsafe_allow_html=True)
@@ -299,7 +303,7 @@ if st.session_state.analysis_done:
         else: 
             st.success("✨ **จังหวะทางโปร่ง:** ไม่พบดาวจรที่ส่งผลเสียร้ายแรงหรืออุปสรรคหนักในระยะนี้ สามารถลุยงานหรือโปรเจกต์ที่ตั้งใจไว้ได้อย่างสบายใจครับ")
 
-# --- ส่วนเสี่ยงทายไพ่ยิปซีแบบสุ่ม (รายวัน) ด้านล่างสุด ---
+# --- ส่วนเสี่ยงทายไพ่ยิปซีแบบสุ่ม (รายวัน) ---
 st.markdown("---")
 st.header("🃏 พื้นที่เสี่ยงทายไพ่ยิปซีพยากรณ์รายวัน (สุ่ม 1 ใบ)")
 st.subheader("ตั้งจิตอธิษฐานถึงคำถามเฉพาะเจาะจง แล้วกดเปิดไพ่")
